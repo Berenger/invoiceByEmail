@@ -26,7 +26,7 @@ class invoicebyemail extends Module
     {
         $this->name = 'invoicebyemail';
         $this->tab = 'emailing';
-        $this->version = '1.0.1';
+        $this->version = '1.0.2';
         $this->author = 'Bérenger VIDAL';
         $this->need_instance = 0;
 
@@ -46,7 +46,7 @@ class invoicebyemail extends Module
               || !Configuration::updateValue('invoicebyemail_Template', 'payment')
               || !Configuration::updateValue('invoicebyemail_Statut', 2)
               || !Configuration::updateValue('invoicebyemail_Entete', 'Votre facture')
-              || !$this->registerHook('actionOrderStatusUpdate')
+			  || !$this->registerHook('actionOrderStatusPostUpdate')
         )
             return false;
         else
@@ -58,14 +58,14 @@ class invoicebyemail extends Module
         Configuration::deleteByName('invoicebyemail_Template');
         Configuration::deleteByName('invoicebyemail_Statut');
         Configuration::deleteByName('invoicebyemail_Entete');
-		$this->unregisterHook('actionOrderStatusUpdate');
+		$this->unregisterHook('actionOrderStatusPostUpdate');
         return parent::uninstall();
     }
 
     /**
      * Envoie d'un mail contenant la facture
      */
-    public function hookActionOrderStatusUpdate($param)
+    public function hookActionOrderStatusPostUpdate($param)
     {
         $order = new Order($param['id_order']);
 
@@ -90,7 +90,6 @@ class invoicebyemail extends Module
             $mail->Send($order->id_lang, Configuration::get('invoicebyemail_Template'), $entete, $var, $customer->email,$customer->firstname, null, null, $pj);
         }
     }
-
     public function getContent()
     {
         $output = null;
